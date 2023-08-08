@@ -9,7 +9,12 @@ const typeDefs = `#graphql
   }
   type Query {
     countries: [Country]
-    country: Country
+    country(code: String): Country
+  }
+
+  type Mutation {
+    updateCountry(code: String): Country
+    deleteCountry(code: String): Country
   }
 `;
 const sampleCountries = [
@@ -44,8 +49,9 @@ const resolvers = {
             //business logic
             return sampleCountries;
         },
-        country: () => {
-            return sampleCountries[0];
+        country: (_, args) => {
+            console.log({ args });
+            return sampleCountries.find((country) => country.code === args.code);
         },
     },
 };
