@@ -1,62 +1,49 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import MongoDBreq from "./utils/db.js";
 
 const typeDefs = `#graphql
-  type Country {
-    code: String
-    currency: String
-    name: String
-    phone: Int
+  type Post{
+    text: String
+    images: [String]
+    usereId: String
+    createdAt: String
   }
   type Query {
-    countries: [Country]
-    country(code: String): Country
+    getPosts : [Post]
+    getPostDetail: Post
+  }
+  input PostInput {
+    text: String
+    images: [String]
   }
 
   type Mutation {
-    updateCountry(code: String): Country
-    deleteCountry(code: String): Country
+   createPost(postCreateInput: PostInput): Post,
+   updatePost(id: ID!, postUpdateInput: PostInput): Post,
+   deletePost(id: ID!): ID
   }
 `;
 
-const sampleCountries = [
-  {
-    code: "AD",
-    emoji: "🇦🇩",
-    phone: 376,
-    name: "Andorra",
-  },
-  {
-    code: "AE",
-    emoji: "🇦🇪",
-    phone: 971,
-    name: "United Arab Emirates",
-  },
-  {
-    code: "AF",
-    emoji: "🇦🇫",
-    phone: 93,
-    name: "Afghanistan",
-  },
-  {
-    code: "AG",
-    emoji: "🇦🇬",
-    phone: 1268,
-    name: "Antigua and Barbuda",
-  },
-];
-
 const resolvers = {
   Query: {
-    countries: () => {
-      //business logic
-      return sampleCountries;
+    getPosts: () => {
+      const get = MongoDBreq("find", {});
     },
-    country: (_, args) => {
-      console.log({ args });
+    getPostDetail: () => {},
+  },
+  Mutation: {
+    createPost: (_, args) => {
+      console.log(args);
 
-      return sampleCountries.find((country) => country.code === args.code);
+      const create = MongoDBreq("insertOne", {
+        document: {
+          text: args.text,
+        },
+      });
     },
+    updatePost: () => {},
+    deletePost: () => {},
   },
 };
 const server = new ApolloServer({
